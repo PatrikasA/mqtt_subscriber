@@ -1,16 +1,16 @@
 BIN:=mqtt_subscriber
 CC:=gcc
-LIBS:=-libmosquito -luci
+LDFLAGS:=-lmosquitto
 OBJ:=$(SRC:.c=.o)
 SRC:=$(wildcard *.c)
 
 
-.PHONY all clean
+.PHONY: all clean
 
 all: $(BIN)
 
 $(BIN): $(OBJ)
-		$(CC) -o $@ $^ $(LDFLAGS)
+		$(CC) $(SRC) -o $@ $(LDFLAGS)
 
 clean:
 		$(RM) $(BIN) $(OBJ)
