@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
 struct config{
-    char* host;
+    char* broker;
     int port;
     bool use_tls;
     char* cert_file;

@@ -1,12 +1,12 @@
 #include "argp_handler.h"
 #include "mqtt_config.h"
 
-static error_t parse_opt(int key, char* arg, struct argp_state* state)
+static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
     struct config* cfg = state -> input;
     switch(key){
         case 'h':
-            cfg -> host = arg;
+            cfg -> broker = arg;
             break;
         case 'p':
             cfg -> port = arg;
@@ -28,14 +28,41 @@ static error_t parse_opt(int key, char* arg, struct argp_state* state)
 }
 
 static struct argp_option options[] = {
-    {"host", 'h', "host", 0, "Host IP adress"},
-    {"port", 'p', "port", 0, "Host port"},
+    {"broker", 'b', "broker", 0, "Broker IP adress"},
+    {"port", 'p', "port", 0, "Broker port"},
     {"cert_file", 't', "cert_file", 0, "Certificate file filepath"},
     {"user", 'u', "user", 0, "Subscriber username"},
     {"password", 'P', "password", 0, "Subscriber password"},
     {"topic", 'T', "topic", 0, "Topic to subscribe to"},
-    {0}
-};
+    {0}};
 
 static struct argp argp = {options, parse_opt, "", ""};
 
+static void exit_with_message(char *message)
+{
+    syslog(LOG_ERR, message);
+    exit(1);
+}
+
+int argp_validate(struct config *cfg)
+{
+    if(cfg -> port <=0 || cfg -> port > 65535)
+        exit_with_message("Port number out of bounds. Please enter a valid port.\n"); 
+    if(strlen(cfg -> broker) == 0)
+        exit_with_message("Broker IP adress not provided\n");
+    if(cfg -> use_tls == true)
+        if(access(cfg -> cert_file, F_OK) != 0)
+            exit_with_message("TLS enabled, no certificate file provided");
+    if(strlen(cfg -> password) == 0 && strlen(cfg -> username) != 0)
+        exit_with_message("Provided username, but no password. Both or neither must be provided");
+    if(strlen(cfg -> username) == 0 && strlen(cfg -> password) != 0)
+        exit_with_message("Provided password, but no username. Both or neither must be provided");
+}
+
+int get_options(struct config *cfg, int argc, char argv[])
+{
+    int rc=0;
+    argp_parse(&argp, argc, argv, 0, 0, cfg);
+    rc = argp_validate(cfg);
+    return rc;
+}
