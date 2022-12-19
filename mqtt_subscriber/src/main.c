@@ -28,11 +28,11 @@ int main(int argc, char* argv[])
     int rc = 0;
     int id = 12;
     struct mosquitto* mosq;
-    struct config* cfg = NULL;
+    struct config* cfg = malloc(sizeof(struct config));
     // struct topic_node temptopics = {"test_topic", {"test_topic", "temp", LESS_THAN, "computer.test@tester.com",
     // {"patrikas.armalis@gmail.com", NULL}, 10, "patrikas", "password", "testip", "testport", NULL}, NULL};
     // topics = &temptopics;
-
+    init_config(cfg);
     get_options(cfg, argc, argv);
 
     init_mosquitto(&mosq, cfg, &id, topics);

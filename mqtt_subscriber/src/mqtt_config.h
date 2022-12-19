@@ -12,5 +12,5 @@ struct config{
     char *username;
     char* password;
 };
-
+void init_config(struct config *cfg);
 #endif
