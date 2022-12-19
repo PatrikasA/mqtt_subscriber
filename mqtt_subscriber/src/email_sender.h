@@ -1,15 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <curl/curl.h>
+#include "email_recipient_list.h"
 
-#define FROM_ADDR    "<sender@example.org>"
-#define TO_ADDR      "<addressee@example.net>"
-#define CC_ADDR      "<info@example.org>"
- 
-#define FROM_MAIL "Sender Person " FROM_ADDR
-#define TO_MAIL   "A Receiver " TO_ADDR
-#define CC_MAIL   "John CC Smith " CC_ADDR
-
-struct upload_status {
-  size_t bytes_read;
-};
+int send_email(char *topic, char *message, char *sender, struct recipient *recipients, char *username, char *password, char *smtp_ip_adress, char *smtp_port);

@@ -1,5 +1,8 @@
 #include "message_database.h"
 
+sqlite3* DATABASE = NULL;
+const char* LOG_PATH = "/var/log/mqtt_messages.db";
+
 void get_current_time(char** time_string)
 {
     time_t t = time(NULL);
@@ -51,7 +54,7 @@ void write_to_database(char* topic, char* payload)
     char dbtext[255];
     // todo:
     // remove literal sql injection
-    snprintf(dbtext, 255, "%s('%s', '%s', '%s', '%s');",temp, topic, payload, time_string);
+    snprintf(dbtext, 255, "%s('%s', '%s', '%s');",temp, topic, payload, time_string);
     int rc = sqlite3_exec(DATABASE, dbtext, NULL, NULL, &err);
     if(rc != SQLITE_OK){
         printf("Failed to insert log.\n");

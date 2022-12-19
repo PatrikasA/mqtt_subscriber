@@ -1,23 +1,29 @@
 // https://curl.se/libcurl/c/smtp-mail.html
 #include "email_sender.h"
 
-static char *create_email(char *topic, char *message, char *sender, char *recipient)
-{
-  char *payload_temp =
-      "To: %s\r\n"
-      "From: %s\r\n"
-      "Subject: %s\r\n"
-      "\r\n" /* empty line to divide headers from body, see RFC5322 */
-      "%s\r\n";
+struct upload_status {
+  size_t bytes_read;
+};
 
-  size_t payload_length = strlen(payload_temp) +
-                          strlen(topic) + strlen(message) +
-                          strlen(sender) + strlen(recipient);
+char *payload_text;
 
-  char payload_text[payload_length + 1];
-  sprintf(payload_text, payload_temp, recipient, sender, topic, message);
-  return payload_text;
-}
+// static char *create_email(char *topic, char *message, char *sender, char *recipient)
+// {
+//   char *payload_temp =
+//       "To: %s\r\n"
+//       "From: %s\r\n"
+//       "Subject: %s\r\n"
+//       "\r\n" /* empty line to divide headers from body, see RFC5322 */
+//       "%s\r\n";
+
+//   size_t payload_length = strlen(payload_temp) +
+//                           strlen(topic) + strlen(message) +
+//                           strlen(sender) + strlen(recipient);
+
+//   char payload_text[payload_length + 1];
+//   sprintf(payload_text, payload_temp, recipient, sender, topic, message);
+//   return payload_text;
+// }
 
 static size_t payload_source(char *ptr, size_t size, size_t nmemb, void *userp)
 {
@@ -46,65 +52,44 @@ static size_t payload_source(char *ptr, size_t size, size_t nmemb, void *userp)
   return 0;
 }
 
-int send_email(char *topic, char *message, char *sender, char *recipient, char *username, char *password, char *smtp_ip_adress, char *smtp_port)
+int send_email(char *topic, char *message, char *sender, struct recipient* recipients, char *username, char *password, char *smtp_ip_adress, char *smtp_port)
 {
+  int rc = 0;
   CURL *curl;
   CURLcode res = CURLE_OK;
-  struct curl_slist *recipients = NULL;
+  struct curl_slist *recipient_list = NULL;
   struct upload_status upload_ctx = {0};
-  char *smtp_adress = strcat("smtp://", smtp_ip_adress);
-  char *payload = create_email(topic, message, sender, recipient);
+  struct recipient* current_recipient = recipients;
+
+  payload_text = malloc(sizeof(char) * strlen(message));
 
   curl = curl_easy_init();
   if (curl)
   {
-    /* This is the URL for your mailserver */
-    curl_easy_setopt(curl, CURLOPT_URL, "smtp://mail.example.com");
-
-    /* Note that this option is not strictly required, omitting it will result
-     * in libcurl sending the MAIL FROM command with empty sender data. All
-     * autoresponses should have an empty reverse-path, and should be directed
-     * to the address in the reverse-path which triggered them. Otherwise,
-     * they could cause an endless loop. See RFC 5321 Section 4.5.5 for more
-     * details.
-     */
-    curl_easy_setopt(curl, CURLOPT_MAIL_FROM, FROM_ADDR);
-
-    /* Add two recipients, in this particular case they correspond to the
-     * To: and Cc: addressees in the header, but they could be any kind of
-     * recipient. */
-    recipients = curl_slist_append(recipients, TO_ADDR);
-    recipients = curl_slist_append(recipients, CC_ADDR);
-    curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-
-    /* We are using a callback function to specify the payload (the headers and
-     * body of the message). You could just use the CURLOPT_READDATA option to
-     * specify a FILE pointer to read from. */
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
-    /* Send the message */
-    res = curl_easy_perform(curl);
+    curl_easy_setopt(curl, CURLOPT_URL, smtp_ip_adress);
+    curl_easy_setopt(curl, CURLOPT_PORT, atoi(smtp_port));
+    curl_easy_setopt(curl, CURLOPT_USERNAME, username);
+    curl_easy_setopt(curl, CURLOPT_PASSWORD, password);
+    curl_easy_setopt(curl, CURLOPT_MAIL_FROM, sender);
 
-    /* Check for errors */
-    if (res != CURLE_OK)
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
+    while(current_recipient != NULL)
+    {
+      recipient_list = curl_slist_append(recipient_list, current_recipient->email);
+      current_recipient = current_recipient->next;
+    }
+    curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipient_list);
+    
+    rc = (int)curl_easy_perform(curl);
 
-    /* Free the list of recipients */
-    curl_slist_free_all(recipients);
-
-    /* curl will not send the QUIT command until you call cleanup, so you
-     * should be able to re-use this connection for additional messages
-     * (setting CURLOPT_MAIL_FROM and CURLOPT_MAIL_RCPT as required, and
-     * calling curl_easy_perform() again. It may not be a good idea to keep
-     * the connection open for a very long time though (more than a few
-     * minutes may result in the server timing out the connection), and you do
-     * want to clean up in the end.
-     */
+    curl_slist_free_all(recipient_list);
     curl_easy_cleanup(curl);
   }
 
-  return (int)res;
+  free(payload_text);
+
+  return rc;
 }
