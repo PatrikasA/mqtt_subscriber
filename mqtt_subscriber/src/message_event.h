@@ -4,6 +4,7 @@
 #include <json-c/json.h>
 #include <stdbool.h>
 #include <syslog.h>
+#include <ctype.h>
 
 #include "event_list.h"
 #include "variable_list.h"

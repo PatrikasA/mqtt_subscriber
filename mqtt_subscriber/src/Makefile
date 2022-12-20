@@ -10,7 +10,7 @@ SRC:=$(wildcard *.c)
 all: $(BIN)
 
 $(BIN): $(OBJ)
-		$(CC) $(SRC) -o $@ $(LDFLAGS)
+		$(CC) -g $(SRC) -o $@ $(LDFLAGS)
 
 clean:
 		$(RM) $(BIN) $(OBJ)

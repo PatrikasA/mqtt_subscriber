@@ -5,21 +5,21 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     struct config *cfg = state->input;
     switch (key)
     {
-    case 'h':
-        cfg->broker = arg;
+    case 'b':
+        strcpy(cfg->broker, arg);
         break;
     case 'p':
-        cfg->port = arg;
+        strcpy(cfg->port, arg);
         break;
     case 't':
         cfg->use_tls = true;
-        cfg->cert_file = arg;
+        strcpy(cfg->cert_file, arg);
         break;
     case 'u':
-        cfg->username = arg;
+        strcpy(cfg->username, arg);
         break;
     case 'P':
-        cfg->password = arg;
+        strcpy(cfg->password, arg);
         cfg->use_password = true;
         break;
     default:

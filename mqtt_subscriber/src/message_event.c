@@ -1,5 +1,4 @@
 #include "message_event.h"
-#include "event_list.h"
 #include "message_database.h"
 #include "email_sender.h"
 #include "email_recipient_list.h"
@@ -56,13 +55,40 @@ static int check_number(double message, enum operation operation, double compare
     };
 }
 
+int parse_message(struct variable *var, char *message)
+{
+    printf("Entered function\n");
+    fflush(stdout);
+    for (int i = 0; i < strlen(message); i++)
+    {
+        printf("in the for loob\n");
+        fflush(stdout);
+        if(!isdigit(message[i]))
+        {
+            printf("checked for digit\n");
+            fflush(stdout);
+            var->is_number = false;
+            printf("set to false\n");
+            fflush(stdout);
+            strcpy(var->data.string, message);
+            printf("copied over the message\n");
+            fflush(stdout);
+            return 0;
+        }
+    }
+    var->is_number = true;
+    var->data.number = atof(message);
+    var->next = NULL;
+}
+
 int parse_json_obj(struct variable **var, char *message)
 {
     json_object *object = json_tokener_parse(message);
     enum json_type type;
-
+    
     json_object_object_foreach(object, key, val)
     {
+        printf("We here\n");
         struct variable *current;
         if((*var)->key == NULL)
             current = *var;
@@ -131,23 +157,28 @@ void execute_events(struct topic_node* current, struct variable* var)
 
 int process_message(char* topic, char* message, struct topic_node* topic_list)
 {
-    struct variable *var = malloc(sizeof(struct variable));
+    printf("We here\n");
+    struct variable *var = (struct variable*)malloc(sizeof(struct variable));
     if (var = NULL)
     {
-        //Didnt malloc
+
     }
 
-    if(parse_json_obj(&var, message) != 0){
-        delete_variable_list(var);
-        return 1;
-    }
+    strcpy(var->key, "true");
 
-    struct topic_node *current = topic_list;
-    while(current != NULL)
-    {
-        if(strcmp(topic, current->topic) == 0){
-            execute_events(current, var);
-        }
-        current = current->next;
-    }
+    printf("message: %s\n", message);
+    printf("message: %s\n", message);
+    printf("message: %s\n", message);
+    printf("message: %s\n", message);
+    fflush(stdout);
+    //parse_message(var, message);
+
+    // struct topic_node *current = topic_list;
+    // while(current != NULL)
+    // {
+    //     if(strcmp(topic, current->topic) == 0){
+    //         execute_events(current, var);
+    //     }
+    //     current = current->next;
+    // }
 }

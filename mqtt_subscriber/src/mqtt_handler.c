@@ -9,6 +9,7 @@ void exit_if_error(int rc, char* message)
     if(rc != MOSQ_ERR_SUCCESS)
     {
         syslog(LOG_ERR, "Error encountered. %s Exiting with code: %d", message, rc);
+        mosquitto_lib_cleanup();
         exit(rc);
     }
 }
@@ -22,6 +23,7 @@ static void on_message(struct mosquitto* mosq, void* obj, const struct mosquitto
 {
     printf("New message with topic: %s: %s\n", msg->topic, (char*) msg->payload);
     //write_to_database(msg->topic, msg->payload);
+    printf("%s", topics->topic);
     process_message(msg->topic, msg->payload, topics);
 }
 

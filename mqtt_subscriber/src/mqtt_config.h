@@ -1,16 +1,17 @@
 #include <stdbool.h>
+#include <string.h>
 
 #ifndef MQTT_CONFIG_H
 #define MQTT_CONFIG_H
 
 struct config{
-    char *broker;
-    char* port;
+    char broker[20];
+    char port[10];
     bool use_tls;
-    char* cert_file;
+    char cert_file[50];
     bool use_password;
-    char *username;
-    char* password;
+    char username[20];
+    char password[20];
 };
 void init_config(struct config *cfg);
 #endif

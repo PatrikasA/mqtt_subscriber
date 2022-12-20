@@ -29,9 +29,8 @@ int main(int argc, char* argv[])
     int id = 12;
     struct mosquitto* mosq;
     struct config* cfg = malloc(sizeof(struct config));
-    // struct topic_node temptopics = {"test_topic", {"test_topic", "temp", LESS_THAN, "computer.test@tester.com",
-    // {"patrikas.armalis@gmail.com", NULL}, 10, "patrikas", "password", "testip", "testport", NULL}, NULL};
-    // topics = &temptopics;
+    struct topic_node temptopics = {"test_topic", NULL, NULL};
+    topics = &temptopics;
     init_config(cfg);
     get_options(cfg, argc, argv);
 
