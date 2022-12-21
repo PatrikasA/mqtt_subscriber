@@ -21,7 +21,7 @@ void create_database()
     
     int rc = sqlite3_exec(DATABASE, table, NULL, NULL, &err);
     if(rc != SQLITE_OK){
-        printf("Failed to create database\n");
+        syslog(LOG_ERR, "Failed to create database\n");
     }
     sqlite3_free(err);
 }
@@ -30,7 +30,7 @@ void open_database_file()
 {
     int rc = sqlite3_open(LOG_PATH, &DATABASE); 
     if(rc!=SQLITE_OK){
-        printf("Failed to open database\n");
+        syslog(LOG_ERR, "Failed to open database\n");
         return;
     }
 }
@@ -39,7 +39,7 @@ void close_database_file()
 {
     int rc = sqlite3_close(DATABASE); 
     if(rc!=SQLITE_OK){
-        printf("Failed to close database\n");
+        syslog(LOG_ERR, "Failed to close database\n");
         return;
     }
 }
@@ -51,13 +51,11 @@ void write_to_database(char* topic, char* payload)
     get_current_time(&time_string);
 
     char* temp = "INSERT INTO mqtt_messages (topic, payload, time) VALUES";
-    char dbtext[255];
-    // todo:
-    // remove literal sql injection
-    snprintf(dbtext, 255, "%s('%s', '%s', '%s');",temp, topic, payload, time_string);
+    char* dbtext;
+    dbtext = sqlite3_mprintf("%s('%s', '%s', '%s');",temp, topic, payload, time_string);
     int rc = sqlite3_exec(DATABASE, dbtext, NULL, NULL, &err);
     if(rc != SQLITE_OK){
-        printf("Failed to insert log.\n");
+        syslog(LOG_ERR, "Failed to insert log.\n");
     }
     free(time_string);
 }

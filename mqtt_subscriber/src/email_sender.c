@@ -7,24 +7,6 @@ struct upload_status {
 
 char *payload_text;
 
-// static char *create_email(char *topic, char *message, char *sender, char *recipient)
-// {
-//   char *payload_temp =
-//       "To: %s\r\n"
-//       "From: %s\r\n"
-//       "Subject: %s\r\n"
-//       "\r\n" /* empty line to divide headers from body, see RFC5322 */
-//       "%s\r\n";
-
-//   size_t payload_length = strlen(payload_temp) +
-//                           strlen(topic) + strlen(message) +
-//                           strlen(sender) + strlen(recipient);
-
-//   char payload_text[payload_length + 1];
-//   sprintf(payload_text, payload_temp, recipient, sender, topic, message);
-//   return payload_text;
-// }
-
 static size_t payload_source(char *ptr, size_t size, size_t nmemb, void *userp)
 {
   struct upload_status *upload_ctx = (struct upload_status *)userp;

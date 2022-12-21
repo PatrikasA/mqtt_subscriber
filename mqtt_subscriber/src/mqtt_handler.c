@@ -21,9 +21,7 @@ static void on_connect(struct mosquitto* mosq, void* obj, int rc)
 
 static void on_message(struct mosquitto* mosq, void* obj, const struct mosquitto_message* msg)
 {
-    printf("New message with topic: %s: %s\n", msg->topic, (char*) msg->payload);
-    //write_to_database(msg->topic, msg->payload);
-    printf("%s", topics->topic);
+    write_to_database(msg->topic, msg->payload);
     process_message(msg->topic, msg->payload, topics);
 }
 

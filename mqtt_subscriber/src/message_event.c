@@ -57,128 +57,54 @@ static int check_number(double message, enum operation operation, double compare
 
 int parse_message(struct variable *var, char *message)
 {
-    printf("Entered function\n");
-    fflush(stdout);
+
     for (int i = 0; i < strlen(message); i++)
     {
-        printf("in the for loob\n");
-        fflush(stdout);
+
         if(!isdigit(message[i]))
         {
-            printf("checked for digit\n");
-            fflush(stdout);
             var->is_number = false;
-            printf("set to false\n");
-            fflush(stdout);
             strcpy(var->data.string, message);
-            printf("copied over the message\n");
-            fflush(stdout);
             return 0;
         }
     }
     var->is_number = true;
     var->data.number = atof(message);
-    var->next = NULL;
 }
-
-int parse_json_obj(struct variable **var, char *message)
-{
-    json_object *object = json_tokener_parse(message);
-    enum json_type type;
-    
-    json_object_object_foreach(object, key, val)
-    {
-        printf("We here\n");
-        struct variable *current;
-        if((*var)->key == NULL)
-            current = *var;
-        else{
-            current = malloc(sizeof(struct variable));
-            current->next = *var;
-            *var = current;
-        }
-
-        strcpy(current->key, key);
-        type = json_object_get_type(object);
-
-        switch(type){
-            case json_type_null:
-                syslog(LOG_ERR, "Encountered NULL json\n");
-                return 1;
-                break;
-            case json_type_double:
-                current->is_number = true;
-                current->data.number = json_object_get_double(object);
-                break;
-            case json_type_int:
-                current->is_number = true;
-                current->data.number = json_object_get_int(object);
-                break;
-            case json_type_string:
-                current->is_number = false;
-                strcpy(current->data.string, json_object_get_string(object));
-                break;
-            default:
-                syslog(LOG_ERR, "Unsupported json encountered\n");
-                return 1;
-                break;
-            }
-    }
-    json_object_put(object);
-    return 0;
-}
-
 
 void execute_events(struct topic_node* current, struct variable* var)
 {
     struct event_node *current_event = current->events;
-    struct variable *current_variable = var;
     int rc = 0;
-
-    while (current_variable != NULL)
+    while(current_event != NULL)
     {
-        while(current_event != NULL)
-        {
-           if(current_variable->is_number==true)
-               rc = check_number(current_variable->data.number, current_event->operation, atoi(current_event->expected_value));
-            else
-               rc = check_string(current_variable->data.string, current_event->operation, current_event->expected_value);
+        if(var->is_number==true)
+            rc = check_number(var->data.number, current_event->operation, atoi(current_event->expected_value));
+        else
+            rc = check_string(var->data.string, current_event->operation, current_event->expected_value);
+        if(rc == 1)
+            send_email("topc", "sending an email event happened",
+                        current_event->sender, current_event->recipients, current_event->username,
+                        current_event->password, current_event->smtp_ip, current_event->smpt_port);
 
-            if(rc == 1)
-               send_email("topc", "sending an email event happened",
-                          current_event->sender, current_event->recipients, current_event->username,
-                          current_event->password, current_event->smtp_ip, current_event->smpt_port);
-
-            current_event = current_event->next;
-        }
-        current_variable = current_variable->next;
+        current_event = current_event->next;
     }
 }
 
 int process_message(char* topic, char* message, struct topic_node* topic_list)
 {
-    printf("We here\n");
-    struct variable *var = (struct variable*)malloc(sizeof(struct variable));
-    if (var = NULL)
+    struct variable *var = malloc(sizeof(struct variable));
+    parse_message(var, message);
+    struct topic_node *current = topic_list;
+    while (current != NULL)
     {
-
+        if(strcmp(topic, current->topic) == 0){
+            execute_events(current, var);
+            free(var);
+            return 0;
+        }
+        current = current->next;
     }
-
-    strcpy(var->key, "true");
-
-    printf("message: %s\n", message);
-    printf("message: %s\n", message);
-    printf("message: %s\n", message);
-    printf("message: %s\n", message);
-    fflush(stdout);
-    //parse_message(var, message);
-
-    // struct topic_node *current = topic_list;
-    // while(current != NULL)
-    // {
-    //     if(strcmp(topic, current->topic) == 0){
-    //         execute_events(current, var);
-    //     }
-    //     current = current->next;
-    // }
+    free(var);
+    return 0;
 }
