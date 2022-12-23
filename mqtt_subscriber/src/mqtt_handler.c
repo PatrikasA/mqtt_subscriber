@@ -4,19 +4,11 @@
 
 extern struct topic_node* topics;
 
-void exit_if_error(int rc, char* message)
-{
-    if(rc != MOSQ_ERR_SUCCESS)
-    {
-        syslog(LOG_ERR, "Error encountered. %s Exiting with code: %d", message, rc);
-        mosquitto_lib_cleanup();
-        exit(rc);
-    }
-}
-
 static void on_connect(struct mosquitto* mosq, void* obj, int rc)
 {
-    exit_if_error(rc, "Failed to connect.");
+    if(rc){
+	syslog(LOG_ERR, "Failed to connect to broker");
+    }
 }
 
 static void on_message(struct mosquitto* mosq, void* obj, const struct mosquitto_message* msg)
@@ -30,7 +22,6 @@ int subscribe_topic_list(struct mosquitto* mosq, struct topic_node* topics)
     int rc = 0;
     while (topics != NULL)
     {
-	syslog(LOG_INFO, "Attempting to sub to topic: %s\n", topics->topic);
 	rc = mosquitto_subscribe(mosq, NULL, topics->topic, 1);
 	if(rc != MOSQ_ERR_SUCCESS)
             syslog(LOG_ERR, "Failed to subscribe to topic \"%s\"\n", topics->topic);
@@ -47,20 +38,29 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
 
     if (cfg->use_tls == true)
     {
-        rc = mosquitto_tls_set(*mosq, cfg->cert_file, NULL, NULL, NULL, NULL);
-        exit_if_error(rc, "Failed to set TLS.");
-    }
+	rc = mosquitto_tls_set(*mosq, cfg->cert_file, NULL, NULL, NULL, NULL);
+	if (rc) {
+	    syslog(LOG_ERR, "Failed to set TLS.");
+	    return rc;
+	}
+	}
     if(cfg->use_password == true)
     {
-        rc = mosquitto_username_pw_set(*mosq, cfg->username, cfg->password);
-        exit_if_error(rc, "Failed to set username and password.");
+	rc = mosquitto_username_pw_set(*mosq, cfg->username, cfg->password);
+	if (rc) {
+	    syslog(LOG_ERR, "Failed to set username and password.");
+	    return rc;
+	}
     }
 
     *mosq = mosquitto_new("subscribe-test", true, id);
     mosquitto_connect_callback_set(*mosq, on_connect);
     mosquitto_message_callback_set(*mosq, on_message);
     rc = mosquitto_connect(*mosq, cfg->broker, atoi(cfg->port), 10);
-    exit_if_error(rc, "Failed to connect to broker");
+    if (rc) {
+	syslog(LOG_ERR, "Failed to subscribe to broker");
+	return rc;
+    }
     subscribe_topic_list(*mosq, topics);
     mosquitto_loop_start(*mosq);
     return rc;

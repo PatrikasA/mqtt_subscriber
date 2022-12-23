@@ -30,7 +30,6 @@ int event_parse_option(struct event_node *e, char *option, char *value) {
         if(parse_string("password", option, value, e->password)==0) return 0;
         if(parse_string("expected_value", option, value, e->expected_value)==0) return 0;
         if(parse_string("parameter", option, value, e->parameter)==0) return 0;
-        //if(parse_cmp_type(option, value, e)==0) return 0;
         return -1;
 }
 

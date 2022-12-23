@@ -36,9 +36,14 @@ int main(int argc, char* argv[])
     init_config(cfg);
     get_options(cfg, argc, argv);
     rc = load_events(&topics);
+    if(rc)
+	    goto cleanup;
     rc = init_mosquitto(&mosq, cfg, &id, topics);
+    if(rc)
+	    goto cleanup;
     while (daemonize) {
     }
+    cleanup:
     delete_topic_list(topics);
     end_mosquitto(&mosq);
     close_database_file();

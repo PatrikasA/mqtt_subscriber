@@ -83,7 +83,7 @@ void execute_events(struct topic_node* current, struct variable* var)
         else
             rc = check_string(var->data.string, current_event->operation, current_event->expected_value);
         if(rc == 1)
-            send_email("topc", "sending an email event happened",
+            send_email("mqtt_event email", "sending an email event happened, maybe put relevant info here in future",
                         current_event->sender, current_event->recipients, current_event->username,
                         current_event->password, current_event->smtp_ip, current_event->smpt_port);
 
