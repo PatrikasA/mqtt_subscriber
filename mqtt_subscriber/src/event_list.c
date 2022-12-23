@@ -20,8 +20,9 @@ void delete_event_list(struct event_node *list)
         list = list->next;
         if(to_delete !=NULL){
             to_delete -> next = NULL;
-            free(to_delete);
-        }
+	    delete_recipient_list(to_delete->recipients);
+	    free(to_delete);
+	}
         to_delete = NULL;
         to_delete = list;
     }

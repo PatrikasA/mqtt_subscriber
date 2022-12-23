@@ -40,8 +40,9 @@ void delete_topic_list(struct topic_node *list)
         list = list->next;
         if(to_delete !=NULL){
             to_delete -> next = NULL;
-            free(to_delete);
-        }
+	    delete_event_list(to_delete->events);
+	    free(to_delete);
+	}
         to_delete = NULL;
         to_delete = list;
     }

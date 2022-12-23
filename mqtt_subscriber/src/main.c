@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
     rc = init_mosquitto(&mosq, cfg, &id, topics);
     while (daemonize) {
     }
+    delete_topic_list(topics);
     end_mosquitto(&mosq);
     close_database_file();
 }

@@ -38,25 +38,27 @@ static struct argp_option options[] = {
 
 static struct argp argp = {options, parse_opt, "", ""};
 
-static void exit_with_message(char *message)
+static void exit_with_message(char *message, struct config *cfg)
 {
     syslog(LOG_ERR, message);
+    close_database_file();
+    free(cfg);
     exit(1);
 }
 
 void argp_validate(struct config *cfg)
 {
     if(cfg -> port <=0 || atoi(cfg -> port) > 65535)
-        exit_with_message("Port number out of bounds. Please enter a valid port.\n"); 
+        exit_with_message("Port number out of bounds. Please enter a valid port.\n", cfg); 
     if(strlen(cfg -> broker) == 0)
-        exit_with_message("Broker IP adress not provided\n");
+        exit_with_message("Broker IP adress not provided\n", cfg);
     if(cfg -> use_tls == true)
         if(access(cfg -> cert_file, F_OK) != 0)
-            exit_with_message("TLS enabled, no certificate file provided");
+            exit_with_message("TLS enabled, no certificate file provided", cfg);
     if(strlen(cfg -> password) == 0 && strlen(cfg -> username) != 0)
-        exit_with_message("Provided username, but no password. Both or neither must be provided");
+        exit_with_message("Provided username, but no password. Both or neither must be provided", cfg);
     if(strlen(cfg -> username) == 0 && strlen(cfg -> password) != 0)
-        exit_with_message("Provided password, but no username. Both or neither must be provided");
+        exit_with_message("Provided password, but no username. Both or neither must be provided", cfg);
 }
 
 void get_options(struct config *cfg, int argc, char* argv[])
