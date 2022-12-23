@@ -1,8 +1,8 @@
+#ifndef MQTT_CONFIG_H
+#define MQTT_CONFIG_H 1
 #include <stdbool.h>
 #include <string.h>
 
-#ifndef MQTT_CONFIG_H
-#define MQTT_CONFIG_H
 
 struct config{
     char broker[20];

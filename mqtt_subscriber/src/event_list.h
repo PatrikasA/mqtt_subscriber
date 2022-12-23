@@ -1,9 +1,8 @@
 #ifndef EVENT_LIST_H
-#define EVENT_LIST_H
+#define EVENT_LIST_H 1
 #include <stdio.h>
 #include <stdlib.h>
 #include "email_recipient_list.h"
-
 enum operation
 {
     LESS_THAN,

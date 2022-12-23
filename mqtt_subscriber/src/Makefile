@@ -1,6 +1,6 @@
 BIN:=mqtt_subscriber
 CC:=gcc
-LDFLAGS:=-lmosquitto -lsqlite3 -ljson-c -lcurl
+LDFLAGS:= -lmosquitto -lsqlite3 -largp -lssl -lcurl -luci
 OBJ:=$(SRC:.c=.o)
 SRC:=$(wildcard *.c)
 
@@ -9,8 +9,8 @@ SRC:=$(wildcard *.c)
 
 all: $(BIN)
 
-$(BIN): $(OBJ)
-		$(CC) -g $(SRC) -o $@ $(LDFLAGS)
+$(BIN): $(SRC)
+		$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
 		$(RM) $(BIN) $(OBJ)

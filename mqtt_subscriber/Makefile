@@ -9,7 +9,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/mqtt_subscriber
 		CATEGORY:=Base system
 		TITLE:=mqtt_subscriber
-		DEPENDS:=+libmosquito +libopenssl +libuci
+		DEPENDS:=+libmosquitto +libuci +libsqlite3 +libcurl +libopenssl
 endef
 
 define Package/mqtt_subscriber/description
@@ -26,4 +26,4 @@ define Package/mqtt_subscriber/install
 	$(INSTALL_CONF) ./files/mqtt_subscriber.config $(1)/etc/config/mqtt_subscriber
 endef
 
-$(eval $(call BuildPackage, mqtt_subscriber))
+$(eval $(call BuildPackage,mqtt_subscriber))

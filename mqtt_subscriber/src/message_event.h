@@ -1,3 +1,5 @@
+#ifndef MESSAGE_EVENT_H
+#define MESSAGE_EVENT_H 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,8 +11,6 @@
 #include "event_list.h"
 #include "topic_list.h"
 
-#ifndef MESSAGE_EVENT_H
-#define MESSAGE_EVENT_H
 
 union data{
     double number;

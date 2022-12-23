@@ -30,8 +30,9 @@ int subscribe_topic_list(struct mosquitto* mosq, struct topic_node* topics)
     int rc = 0;
     while (topics != NULL)
     {
-        rc = mosquitto_subscribe(mosq, NULL, topics->topic, 1);
-        if(rc != MOSQ_ERR_SUCCESS)
+	syslog(LOG_INFO, "Attempting to sub to topic: %s\n", topics->topic);
+	rc = mosquitto_subscribe(mosq, NULL, topics->topic, 1);
+	if(rc != MOSQ_ERR_SUCCESS)
             syslog(LOG_ERR, "Failed to subscribe to topic \"%s\"\n", topics->topic);
         topics = topics->next;
     }
@@ -58,7 +59,8 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
     *mosq = mosquitto_new("subscribe-test", true, id);
     mosquitto_connect_callback_set(*mosq, on_connect);
     mosquitto_message_callback_set(*mosq, on_message);
-    rc = mosquitto_connect(*mosq, "localhost", 1883, 10);
+    rc = mosquitto_connect(*mosq, cfg->broker, atoi(cfg->port), 10);
+    exit_if_error(rc, "Failed to connect to broker");
     subscribe_topic_list(*mosq, topics);
     mosquitto_loop_start(*mosq);
     return rc;

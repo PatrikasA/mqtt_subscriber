@@ -8,8 +8,9 @@
 #include "mqtt_config.h"
 #include "topic_list.h"
 #include "event_list.h"
+#include "uci_handler.h"
 
-volatile __sig_atomic_t daemonize = 1;
+volatile sig_atomic_t daemonize = 1;
 
 void sig_handler(int signo)
 {
@@ -31,16 +32,13 @@ int main(int argc, char* argv[])
     int id = 12;
     struct mosquitto* mosq;
     struct config* cfg = malloc(sizeof(struct config));
-    struct recipient testrecipient = {"<incoming@localhost>", NULL};
-    struct event_node testevent = {"test_topic", "test_param", EQUAL, "<root@localhost>", &testrecipient, "12", "incoming", "password", "smtp://localhost", "25"};
-    struct topic_node temptopics = {"test_topic", &testevent, NULL};
-    topics = &temptopics;
+    struct topic_node *topics = NULL;
     init_config(cfg);
     get_options(cfg, argc, argv);
-
-    init_mosquitto(&mosq, cfg, &id, topics);
-    while(daemonize)
-    {}
+    rc = load_events(&topics);
+    rc = init_mosquitto(&mosq, cfg, &id, topics);
+    while (daemonize) {
+    }
     end_mosquitto(&mosq);
     close_database_file();
 }
