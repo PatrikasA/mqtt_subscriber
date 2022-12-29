@@ -28,13 +28,14 @@ int main(int argc, char* argv[])
 
     open_database_file();
     create_database();
+    
+    struct config* cfg = malloc(sizeof(struct config));
+    init_config(cfg);
+    get_options(cfg, argc, argv);
     int rc = 0;
     int id = 12;
     struct mosquitto* mosq;
-    struct config* cfg = malloc(sizeof(struct config));
     struct topic_node *topics = NULL;
-    init_config(cfg);
-    get_options(cfg, argc, argv);
     rc = load_events(&topics);
     if(rc)
 	    goto cleanup;
