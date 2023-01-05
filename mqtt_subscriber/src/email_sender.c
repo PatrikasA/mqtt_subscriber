@@ -33,6 +33,7 @@ static size_t payload_source(char *ptr, size_t size, size_t nmemb, void *userp)
 
 int send_email(char *message, char *sender, struct recipient* recipients, char *username, char *password, char *smtp_ip_adress, char *smtp_port)
 {
+  curl_global_init(CURL_GLOBAL_DEFAULT);
   int rc = 0;
   CURL *curl;
   CURLcode res = CURLE_OK;
@@ -42,7 +43,6 @@ int send_email(char *message, char *sender, struct recipient* recipients, char *
 
   payload_text = malloc(sizeof(char) * strlen(message));
   strcpy(payload_text, message);
-  char *error = NULL;
   curl = curl_easy_init();
   if (curl)
   {
@@ -51,7 +51,6 @@ int send_email(char *message, char *sender, struct recipient* recipients, char *
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
     curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "smtps");
     curl_easy_setopt(curl, CURLOPT_URL, smtp_ip_adress);
     curl_easy_setopt(curl, CURLOPT_PORT, atoi(smtp_port));
@@ -66,17 +65,11 @@ int send_email(char *message, char *sender, struct recipient* recipients, char *
     }
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipient_list);
     
-    rc = (int)curl_easy_perform(curl);
-
-    if(error != NULL)
-    {
-      printf("%s", error);
-      fflush(stdout);
-    }
+    // rc = (int)curl_easy_perform(curl);
     curl_slist_free_all(recipient_list);
     curl_easy_cleanup(curl);
   }
-
+  curl_global_cleanup();
   free(payload_text);
 
   return rc;

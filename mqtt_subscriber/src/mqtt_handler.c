@@ -35,10 +35,10 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
 {
     int rc = 0;
     mosquitto_lib_init();
+    *mosq = mosquitto_new("subscribe-test", true, id);
 
     if (cfg->use_tls == true)
     {
-    *mosq = mosquitto_new("subscribe-test", true, id);
 	rc = mosquitto_tls_set(*mosq, cfg->cert_file, NULL, NULL, NULL, NULL);
 	if (rc) {
 	    syslog(LOG_ERR, "Failed to set TLS.");
@@ -56,7 +56,7 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
 
     mosquitto_connect_callback_set(*mosq, on_connect);
     mosquitto_message_callback_set(*mosq, on_message);
-    rc = mosquitto_connect(*mosq, cfg->broker, atoi(cfg->port), 10);
+    rc = mosquitto_connect(*mosq, cfg->broker, atoi(cfg->port), 10);    
     if (rc) {
 	    syslog(LOG_ERR, "Failed to subscribe to broker.");
 	    printf("%d\n", rc);

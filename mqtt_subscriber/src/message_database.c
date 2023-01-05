@@ -46,18 +46,20 @@ void close_database_file()
 
 void write_to_database(char* topic, char* payload)
 {
-    char* err;
+    int rc = 0;
+    char *err;
     char* time_string=malloc(sizeof(char)*255);
     get_current_time(&time_string);
 
     char* temp = "INSERT INTO mqtt_messages (topic, payload, time) VALUES";
     char* dbtext;
     dbtext = sqlite3_mprintf("%s('%s', '%s', '%s');",temp, topic, payload, time_string);
-    int rc = sqlite3_exec(DATABASE, dbtext, NULL, NULL, &err);
+    rc = sqlite3_exec(DATABASE, dbtext, NULL, NULL, &err);
     if(rc != SQLITE_OK){
         syslog(LOG_ERR, "Failed to insert log.\n");
     }
     free(time_string);
+    sqlite3_free(dbtext);
 }
 
 sqlite3** get_database_pointer()

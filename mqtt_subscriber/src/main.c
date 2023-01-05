@@ -29,8 +29,7 @@ int main(int argc, char* argv[])
 
     open_database_file();
     create_database();
-    
-    struct config* cfg = malloc(sizeof(struct config));
+    struct config *cfg = malloc(sizeof(struct config));
     init_config(cfg);
     get_options(cfg, argc, argv);
     int rc = 0;
@@ -49,5 +48,6 @@ int main(int argc, char* argv[])
     cleanup:
     delete_topic_list(topics);
     end_mosquitto(&mosq);
+    free(cfg);
     close_database_file();
 }
