@@ -67,22 +67,20 @@ void execute_events(struct topic_node* current, struct variable* var)
     struct event_node *current_event = current->events;
     int rc			     = 0;
     while (current_event != NULL) {
-	if(var->is_number==true){
-            rc = check_number(var->data.number, current_event->operation, atoi(current_event->expected_value));
+	printf("%s\n", current_event->expected_value);
+	if (var->is_number == true) {
+	    rc = check_number(var->data.number, current_event->operation, atoi(current_event->expected_value));
 	sprintf(value, "%f", var->data.number);
-    }
-	else {
-        rc = check_string(var->data.string, current_event->operation, current_event->expected_value);
+	} else {
+	rc = check_string(var->data.string, current_event->operation, current_event->expected_value);
     strcpy(value, var->data.string);
-    }
-	if (rc == 1) {
+	}
     char message[1000];
     sprintf(message,
 	    "Subject: %s\n\n Message from topic: %s \n Received value: %s \n Expected value: %s ", "MQTT event",
 	    current_event->topic, value, current_event->expected_value);
     send_email(message, current_event->sender, current_event->recipients, current_event->username,
 	       current_event->password, current_event->smtp_ip, current_event->smpt_port);
-	}
 	current_event = current_event->next;
     }
 }

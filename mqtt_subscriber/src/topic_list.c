@@ -25,7 +25,7 @@ int add_event_to_topic(struct topic_node** head, struct event_node* event)
 	return 0;
     }
     while (temp->next != NULL) {
-	if (strcmp(temp->topic, event->topic) == 0) {
+	if (strcmp(temp->topic, event->topic)) {
 		add_event(&(temp->events), event);
 		return 0;
 	}
