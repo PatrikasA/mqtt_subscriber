@@ -23,11 +23,11 @@ int subscribe_topic_list(struct mosquitto* mosq, struct topic_node* topics)
     while (topics != NULL)
     {
 	rc = mosquitto_subscribe(mosq, NULL, topics->topic, 1);
-	if(rc != MOSQ_ERR_SUCCESS)
-            syslog(LOG_ERR, "Failed to subscribe to topic \"%s\"\n", topics->topic);
-        topics = topics->next;
+	if (rc != MOSQ_ERR_SUCCESS)
+		syslog(LOG_ERR, "Failed to subscribe to topic \"%s\"\n", topics->topic);
+    else syslog(LOG_INFO, "Subscribet to topic: \"%s\"\n", topics->topic);
+    topics = topics->next;
     }
-
     return rc;
 }
 
@@ -38,12 +38,13 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
 
     if (cfg->use_tls == true)
     {
+    *mosq = mosquitto_new("subscribe-test", true, id);
 	rc = mosquitto_tls_set(*mosq, cfg->cert_file, NULL, NULL, NULL, NULL);
 	if (rc) {
 	    syslog(LOG_ERR, "Failed to set TLS.");
 	    return rc;
 	}
-	}
+    }
     if(cfg->use_password == true)
     {
 	rc = mosquitto_username_pw_set(*mosq, cfg->username, cfg->password);
@@ -53,16 +54,15 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
 	}
     }
 
-    *mosq = mosquitto_new("subscribe-test", true, id);
     mosquitto_connect_callback_set(*mosq, on_connect);
     mosquitto_message_callback_set(*mosq, on_message);
     rc = mosquitto_connect(*mosq, cfg->broker, atoi(cfg->port), 10);
     if (rc) {
-	syslog(LOG_ERR, "Failed to subscribe to broker");
-	return rc;
+	    syslog(LOG_ERR, "Failed to subscribe to broker.");
+	    printf("%d\n", rc);
+	    return rc;
     }
     subscribe_topic_list(*mosq, topics);
-    mosquitto_loop_start(*mosq);
     return rc;
 }
 

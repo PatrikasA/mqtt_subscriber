@@ -9,6 +9,7 @@
 #include "topic_list.h"
 #include "event_list.h"
 #include "uci_handler.h"
+#include "email_sender.h"
 
 volatile sig_atomic_t daemonize = 1;
 
@@ -35,13 +36,14 @@ int main(int argc, char* argv[])
     int rc = 0;
     int id = 12;
     struct mosquitto* mosq;
-    struct topic_node *topics = NULL;
-    rc = load_events(&topics);
-    if(rc)
+    topics = NULL;
+    rc		 = load_events(&topics);
+    if (rc)
 	    goto cleanup;
     rc = init_mosquitto(&mosq, cfg, &id, topics);
     if(rc)
 	    goto cleanup;
+    mosquitto_loop_start(mosq);
     while (daemonize) {
     }
     cleanup:

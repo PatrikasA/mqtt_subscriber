@@ -74,20 +74,27 @@ int parse_message(struct variable *var, char *message)
 
 void execute_events(struct topic_node* current, struct variable* var)
 {
+    char value[100];
     struct event_node *current_event = current->events;
-    int rc = 0;
-    while(current_event != NULL)
-    {
-        if(var->is_number==true)
+    int rc			     = 0;
+    while (current_event != NULL) {
+	if(var->is_number==true){
             rc = check_number(var->data.number, current_event->operation, atoi(current_event->expected_value));
-        else
-            rc = check_string(var->data.string, current_event->operation, current_event->expected_value);
-        if(rc == 1)
-            send_email("mqtt_event email", "sending an email event happened, maybe put relevant info here in future",
-                        current_event->sender, current_event->recipients, current_event->username,
-                        current_event->password, current_event->smtp_ip, current_event->smpt_port);
-
-        current_event = current_event->next;
+	sprintf(value, "%f", var->data.number);
+    }
+	else {
+        rc = check_string(var->data.string, current_event->operation, current_event->expected_value);
+    strcpy(value, var->data.string);
+    }
+	if (rc == 1) {
+    char message[1000];
+    sprintf(message,
+	    "Subject: %s\n\n Message from topic: %s \n Received value: %s \n Expected value: %s ", "MQTT event",
+	    current_event->topic, value, current_event->expected_value);
+    send_email(message, current_event->sender, current_event->recipients, current_event->username,
+	       current_event->password, current_event->smtp_ip, current_event->smpt_port);
+	}
+	current_event = current_event->next;
     }
 }
 

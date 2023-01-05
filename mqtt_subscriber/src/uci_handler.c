@@ -8,6 +8,14 @@ int parse_string(char *expected, char *given, char *value, char *destination_add
         return -1;
 }
 
+int parse_int(char *expected, char *given, int value, struct event_node *e) {
+        if (strcmp(expected, given) == 0) {
+		e->operation = value;
+		return 0;
+        }
+        return -1;
+}
+
 int event_parse_emails(struct event_node *event, struct uci_list *list, char *option) {
         if (strcmp("recipients", option) != 0) return -1;
         struct uci_element *i;
@@ -30,6 +38,8 @@ int event_parse_option(struct event_node *e, char *option, char *value) {
         if(parse_string("password", option, value, e->password)==0) return 0;
         if(parse_string("expected_value", option, value, e->expected_value)==0) return 0;
         if(parse_string("parameter", option, value, e->parameter)==0) return 0;
+        if(parse_int("operation", option, atoi(value), e)==0) return 0;
+
         return -1;
 }
 
@@ -78,9 +88,9 @@ int load_events(struct topic_node **topic_list)
 			if (!rc) {
 				rc = add_event_to_topic(topic_list, event);
 				if (rc) {
-                                        delete_recipient_list(event->recipients);
+					delete_recipient_list(event->recipients);
                                         free(event);
-                                }
+				}
 			} else {
 				delete_recipient_list(event->recipients);
                                 free(event);

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
+#include <stdbool.h>
 #include "message_database.h"
 #include "mqtt_config.h"
 #include "topic_list.h"

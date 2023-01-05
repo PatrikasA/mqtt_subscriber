@@ -1,4 +1,3 @@
-// https://curl.se/libcurl/c/smtp-mail.html
 #include "email_sender.h"
 
 struct upload_status {
@@ -12,29 +11,27 @@ static size_t payload_source(char *ptr, size_t size, size_t nmemb, void *userp)
   struct upload_status *upload_ctx = (struct upload_status *)userp;
   const char *data;
   size_t room = size * nmemb;
-
-  if ((size == 0) || (nmemb == 0) || ((size * nmemb) < 1))
-  {
+ 
+  if((size == 0) || (nmemb == 0) || ((size*nmemb) < 1)) {
     return 0;
   }
-
+ 
   data = &payload_text[upload_ctx->bytes_read];
-
-  if (data)
-  {
+ 
+  if(data) {
     size_t len = strlen(data);
-    if (room < len)
+    if(room < len)
       len = room;
     memcpy(ptr, data, len);
     upload_ctx->bytes_read += len;
-
+ 
     return len;
   }
-
+ 
   return 0;
 }
 
-int send_email(char *topic, char *message, char *sender, struct recipient* recipients, char *username, char *password, char *smtp_ip_adress, char *smtp_port)
+int send_email(char *message, char *sender, struct recipient* recipients, char *username, char *password, char *smtp_ip_adress, char *smtp_port)
 {
   int rc = 0;
   CURL *curl;
@@ -44,14 +41,18 @@ int send_email(char *topic, char *message, char *sender, struct recipient* recip
   struct recipient* current_recipient = recipients;
 
   payload_text = malloc(sizeof(char) * strlen(message));
-
+  strcpy(payload_text, message);
+  char *error = NULL;
   curl = curl_easy_init();
   if (curl)
   {
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L);
     curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
     curl_easy_setopt(curl, CURLOPT_READDATA, &upload_ctx);
     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
+    curl_easy_setopt(curl, CURLOPT_DEFAULT_PROTOCOL, "smtps");
     curl_easy_setopt(curl, CURLOPT_URL, smtp_ip_adress);
     curl_easy_setopt(curl, CURLOPT_PORT, atoi(smtp_port));
     curl_easy_setopt(curl, CURLOPT_USERNAME, username);
@@ -67,6 +68,11 @@ int send_email(char *topic, char *message, char *sender, struct recipient* recip
     
     rc = (int)curl_easy_perform(curl);
 
+    if(error != NULL)
+    {
+      printf("%s", error);
+      fflush(stdout);
+    }
     curl_slist_free_all(recipient_list);
     curl_easy_cleanup(curl);
   }
