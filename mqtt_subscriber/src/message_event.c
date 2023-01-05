@@ -13,17 +13,6 @@ static int check_string(char* message, enum operation operation, char* compare_t
     case NOT_EQUAL:
         return (strcmp(compare_to, message) != 0);
         break;
-    case GREATER_THAN:
-        return (strcmp(compare_to, message) > 0);
-        break;
-    case LESS_THAN:
-        return (strcmp(compare_to, message) < 0);
-        break;
-    case LESS_THAN_EQUAL:
-        return (strcmp(compare_to, message) <= 0);
-        break;
-    case GREATER_EQUAL:
-        return (strcmp(compare_to, message) >= 0);
     default:
         return 2;
     };

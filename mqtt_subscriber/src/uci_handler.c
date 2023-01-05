@@ -82,8 +82,9 @@ int load_events(struct topic_node **topic_list)
                 char *section_name = section->e.name;
                 struct event_node *event = malloc(sizeof(struct event_node));
                 event->recipients = NULL;
+		event->next		    = NULL;
 
-                if (strcmp("event", section_type) == 0) {
+		if (strcmp("event", section_type) == 0) {
                         rc = parse_section(section, event);
 			if (!rc) {
 				rc = add_event_to_topic(topic_list, event);

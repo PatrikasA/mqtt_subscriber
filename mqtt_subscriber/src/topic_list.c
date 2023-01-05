@@ -31,7 +31,12 @@ int add_event_to_topic(struct topic_node** head, struct event_node* event)
 	}
 	temp = temp->next;
     }
-    return 1;
+	struct topic_node *topic = malloc(sizeof(struct topic_node));
+	strcpy(topic->topic, event->topic);
+	topic->events = event;
+	topic->next   = NULL;
+	add_topic(head, topic);
+	return 0;
 }
 
 void delete_topic_list(struct topic_node *list)

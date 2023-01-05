@@ -2,10 +2,11 @@
 
 void add_recipient(struct recipient** head, struct recipient* mail)
 {
-    struct recipient* temp = *head;
-    if (temp == NULL) {
-        *head = mail;
-        return; 
+	mail->next	       = NULL;
+	struct recipient *temp = *head;
+	if (temp == NULL) {
+		*head = mail;
+		return; 
     }
     while (temp->next != NULL) {
         temp = temp->next;

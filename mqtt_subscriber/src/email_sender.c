@@ -65,7 +65,7 @@ int send_email(char *message, char *sender, struct recipient* recipients, char *
     }
     curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipient_list);
     
-    // rc = (int)curl_easy_perform(curl);
+    rc = (int)curl_easy_perform(curl);
     curl_slist_free_all(recipient_list);
     curl_easy_cleanup(curl);
   }
