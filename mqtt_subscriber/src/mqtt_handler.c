@@ -2,13 +2,18 @@
 #include "message_database.h"
 #include "message_event.h"
 
-extern struct topic_node* topics;
 
-static void on_connect(struct mosquitto* mosq, void* obj, int rc)
+
+extern struct topic_node* topics;
+int subscribe_topic_list(struct mosquitto *mosq, struct topic_node *topics);
+
+static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
     if(rc){
 	syslog(LOG_ERR, "Failed to connect to broker");
     }
+
+    subscribe_topic_list(mosq, topics);
 }
 
 static void on_message(struct mosquitto* mosq, void* obj, const struct mosquitto_message* msg)
@@ -59,10 +64,8 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
     rc = mosquitto_connect(*mosq, cfg->broker, atoi(cfg->port), 10);    
     if (rc) {
 	    syslog(LOG_ERR, "Failed to subscribe to broker.");
-	    printf("%d\n", rc);
 	    return rc;
     }
-    subscribe_topic_list(*mosq, topics);
     return rc;
 }
 

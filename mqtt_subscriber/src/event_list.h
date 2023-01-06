@@ -1,5 +1,5 @@
 #ifndef EVENT_LIST_H
-#define EVENT_LIST_H 1
+#define EVENT_LIST_H
 #include <stdio.h>
 #include <stdlib.h>
 #include "email_recipient_list.h"

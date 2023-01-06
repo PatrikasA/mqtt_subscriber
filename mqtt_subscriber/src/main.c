@@ -40,7 +40,6 @@ int main(int argc, char* argv[])
     if (rc)
 	    goto cleanup;
     rc = init_mosquitto(&mosq, cfg, &id, topics);
-    printf("topics: %s \n %s", topics->next->events->expected_value, topics->next->events->next->expected_value);
     fflush(stdout);
     if (rc)
 	    goto cleanup;

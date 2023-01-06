@@ -1,6 +1,9 @@
-#include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
 
+#ifndef VARIABLE_LIST_H
+#define VARIABLE_LIST_H
 union data{
     double number;
     char string[100];
@@ -15,3 +18,5 @@ struct variable
 };
 
 void delete_variable_list(struct variable *list);
+void add_variable(struct variable **head, struct variable *var);
+#endif

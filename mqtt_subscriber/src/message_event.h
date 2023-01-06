@@ -10,19 +10,7 @@
 
 #include "event_list.h"
 #include "topic_list.h"
-
-
-union data{
-    double number;
-    char string[100];
-};
-
-struct variable
-{
-    char key[256];
-    bool is_number;
-    union data data;
-};
+#include "variable_list.h"
 
 int process_message(char *topic, char *message, struct topic_node *topic_list);
 #endif

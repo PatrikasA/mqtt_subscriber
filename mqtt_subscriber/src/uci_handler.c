@@ -85,9 +85,10 @@ int load_events(struct topic_node **topic_list)
 		event->next		    = NULL;
 
 		if (strcmp("event", section_type) == 0) {
-                        rc = parse_section(section, event);
+			rc = parse_section(section, event);
 			if (!rc) {
 				rc = add_event_to_topic(topic_list, event);
+
 				if (rc) {
 					delete_recipient_list(event->recipients);
                                         free(event);

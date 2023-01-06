@@ -1,16 +1,18 @@
 #include "variable_list.h"
 
-void add_variable(struct variable** head, struct variable* variable)
+void add_variable(struct variable** head, struct variable* var)
 {
     struct variable* temp = *head;
     if (temp == NULL) {
-        *head = variable;
-        return; 
+	    struct variable *new_var = malloc(sizeof(struct variable));
+	    new_var->next	     = NULL;
+	    *head		     = var;
+	    return; 
     }
     while (temp->next != NULL) {
         temp = temp->next;
     }
-    temp->next = variable;
+    temp->next = var;
 }
 
 void delete_variable_list(struct variable *list)
@@ -20,8 +22,8 @@ void delete_variable_list(struct variable *list)
         list = list->next;
         if(to_delete !=NULL){
             to_delete -> next = NULL;
-            free(to_delete);
-        }
+	    free(to_delete);
+	}
         to_delete = NULL;
         to_delete = list;
     }
