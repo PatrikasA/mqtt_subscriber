@@ -46,7 +46,6 @@ static int check_number(double message, enum operation operation, double compare
 
 int parse_message(struct variable **var, char *message)
 {
-    printf("the message is: %s\n", message);
     json_object *object = json_tokener_parse(message);
     if(object == NULL){
 	syslog(LOG_ERR, "Error: unsupported message formatting. Supported formatting: JSON");
@@ -91,8 +90,6 @@ void execute_events(struct topic_node* current, struct variable* var)
     struct variable *current_variable = var;
     while (current_variable != NULL) {
 	    if (strcmp(current_variable->key, current_event->parameter)==0){
-	    printf("current_variable->key:%s\n", current_variable->key);
-	    printf("current_event->parameter:%s\n\n", current_event->parameter);
 	    if (current_variable->is_number == true) {
 		    rc = check_number(current_variable->data.number, current_event->operation,
 				      atoi(current_event->expected_value));
