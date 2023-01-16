@@ -85,7 +85,7 @@ void execute_events(struct topic_node* current, struct variable* var)
 {
     char value[100];
     struct event_node *current_event = current->events;
-    int rc = 0;
+    int rc;
     while (current_event != NULL) {
     struct variable *current_variable = var;
     while (current_variable != NULL) {
@@ -98,12 +98,15 @@ void execute_events(struct topic_node* current, struct variable* var)
 		    rc = check_string(current_variable->data.string, current_event->operation,
 				      current_event->expected_value);
 		    strcpy(value, current_variable->data.string);}
-    char message[1000];
-    sprintf(message,
-	    "Subject: %s\n\n Message from topic: %s \n Parameter: %s \n Received value: %s \n Expected value: %s ", "MQTT event",
-	    current_event->topic, current_variable->key, value, current_event->expected_value);
-    send_email(message, current_event->sender, current_event->recipients, current_event->username,
-	       current_event->password, current_event->smtp_ip, current_event->smpt_port);
+            if(rc)
+		    syslog(LOG_ERR, "Encountered unsupported comparison type");
+	    char message[1000];
+	    sprintf(message,
+		    "Subject: %s\n\n Message from topic: %s \n Parameter: %s \n Received value: %s \n Expected value: %s ",
+		    "MQTT event", current_event->topic, current_variable->key, value,
+		    current_event->expected_value);
+	    send_email(message, current_event->sender, current_event->recipients, current_event->username,
+		       current_event->password, current_event->smtp_ip, current_event->smpt_port);
 	    }
     current_variable = current_variable->next;
 	}

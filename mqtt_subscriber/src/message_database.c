@@ -61,8 +61,3 @@ void write_to_database(char* topic, char* payload)
     free(time_string);
     sqlite3_free(dbtext);
 }
-
-sqlite3** get_database_pointer()
-{
-    return &DATABASE;
-}

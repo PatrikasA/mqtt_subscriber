@@ -6,9 +6,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     switch (key)
     {
     case 'b':
-        strcpy(cfg->broker, arg);
-        break;
-    case 'p':
+	    strcpy(cfg->broker, arg);
+	    break;
+    case 'p':   
         strcpy(cfg->port, arg);
         break;
     case 't':
@@ -28,13 +28,12 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-static struct argp_option options[] = {
-    {"broker", 'b', "broker", 0, "Broker IP adress"},
-    {"port", 'p', "port", 0, "Broker port"},
-    {"cert_file", 't', "cert_file", 0, "Certificate file filepath"},
-    {"user", 'u', "user", 0, "Subscriber username"},
-    {"password", 'P', "password", 0, "Subscriber password"},
-    {0}};
+static struct argp_option options[] = { { "broker", 'b', "broker", 0, "Broker IP adress" },
+					{ "port", 'p', "port", 0, "Broker port" },
+					{ "cert_file", 't', "cert_file", 0, "Certificate file filepath" },
+					{ "user", 'u', "user", 0, "Subscriber username" },
+					{ "password", 'P', "password", 0, "Subscriber password" },
+					{ 0 } };
 
 static struct argp argp = {options, parse_opt, "", ""};
 
@@ -42,13 +41,12 @@ static void exit_with_message(char *message, struct config *cfg)
 {
     syslog(LOG_ERR, message);
     close_database_file();
-    free(cfg);
     exit(1);
 }
 
 void argp_validate(struct config *cfg)
 {
-    if(cfg -> port <=0 || atoi(cfg -> port) > 65535)
+    if(atoi(cfg -> port) <=0 || atoi(cfg -> port) > 65535)
         exit_with_message("Port number out of bounds. Please enter a valid port.\n", cfg); 
     if(strlen(cfg -> broker) == 0)
         exit_with_message("Broker IP adress not provided\n", cfg);

@@ -36,7 +36,6 @@ int send_email(char *message, char *sender, struct recipient* recipients, char *
   curl_global_init(CURL_GLOBAL_DEFAULT);
   int rc = 0;
   CURL *curl;
-  CURLcode res = CURLE_OK;
   struct curl_slist *recipient_list = NULL;
   struct upload_status upload_ctx = {0};
   struct recipient* current_recipient = recipients;

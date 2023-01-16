@@ -16,14 +16,16 @@ void add_topic(struct topic_node** head, struct topic_node* topic)
 int add_event_to_topic(struct topic_node** head, struct event_node* event)
 {
     struct topic_node *temp = *head;
-    if (temp == NULL) {
 	struct topic_node *topic = malloc(sizeof(struct topic_node));
 	topic->next		 = NULL;
 	topic->events		 = event;
 	strcpy(topic->topic, event->topic);
+
+	if (temp == NULL) {
 	*head = topic;
 	return 0;
-    }
+	}
+
     while (temp != NULL) {
 	if (strcmp(temp->topic, event->topic) == 0) {
 		add_event(&(temp->events), event);
@@ -31,10 +33,6 @@ int add_event_to_topic(struct topic_node** head, struct event_node* event)
 	}
 	temp = temp->next;
     }
-	struct topic_node *topic = malloc(sizeof(struct topic_node));
-	strcpy(topic->topic, event->topic);
-	topic->events = event;
-	topic->next   = NULL;
 	add_topic(head, topic);
 	return 0;
 }

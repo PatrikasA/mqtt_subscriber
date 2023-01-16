@@ -13,5 +13,4 @@ struct config{
     char username[20];
     char password[20];
 };
-void init_config(struct config *cfg);
 #endif

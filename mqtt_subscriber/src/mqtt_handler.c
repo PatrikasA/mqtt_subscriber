@@ -40,7 +40,7 @@ int init_mosquitto(struct mosquitto** mosq, struct config* cfg, int* id, struct 
 {
     int rc = 0;
     mosquitto_lib_init();
-    *mosq = mosquitto_new("subscribe-test", true, id);
+    *mosq = mosquitto_new(NULL, true, id);
 
     if (cfg->use_tls == true)
     {

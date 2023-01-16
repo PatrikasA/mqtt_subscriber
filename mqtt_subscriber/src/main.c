@@ -20,7 +20,7 @@ void sig_handler(int signo)
     daemonize = 0;
 }
 
-struct topic_node *topics;
+struct topic_node *topics = NULL;
 
 int main(int argc, char* argv[])
 {
@@ -29,26 +29,28 @@ int main(int argc, char* argv[])
 
     open_database_file();
     create_database();
-    struct config *cfg = malloc(sizeof(struct config));
-    init_config(cfg);
-    get_options(cfg, argc, argv);
+    struct config cfg = { .broker	= "localhost",
+			  .port		= "1883",
+			  .use_tls	= false,
+			  .use_password = false,
+			  .password	= "",
+			  .username	= "" };
+    get_options(&cfg, argc, argv);
     int rc = 0;
     int id = 12;
     struct mosquitto* mosq;
-    topics = NULL;
     rc		 = load_events(&topics);
     if (rc)
-	    goto cleanup;
-    rc = init_mosquitto(&mosq, cfg, &id, topics);
-    fflush(stdout);
+	    goto cleanup_topics;
+    rc = init_mosquitto(&mosq, &cfg, &id, topics);
     if (rc)
-	    goto cleanup;
+	    goto cleanup_mosquitto;
     mosquitto_loop_start(mosq);
     while (daemonize) {
     }
-    cleanup:
-    delete_topic_list(topics);
+    cleanup_mosquitto:
     end_mosquitto(&mosq);
-    free(cfg);
+    cleanup_topics:
+    delete_topic_list(topics);
     close_database_file();
 }
